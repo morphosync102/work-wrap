@@ -3,24 +3,24 @@
 #   cp config.example.yaml config.yaml
 
 # =====================
-# プロジェクト設定
+# プロジェクト設定（CATW）
 # =====================
 # 案件が終了したら該当エントリを削除してください
 projects:
   - name: "ProjectA"
     wbs: "A-001"           # WBSコード（案件の一意識別子）
-    excel_column: "B"      # Excel転記先列（後で設定）
+    catw_column: "B"       # CATW Excel 転記先列（後で設定）
   - name: "ProjectB"
     wbs: "B-002"
-    excel_column: "C"
+    catw_column: "C"
   - name: "ProjectC"
     wbs: "C-003"
-    excel_column: "D"
+    catw_column: "D"
 
 # =====================
 # Attend/Absence Type 選択肢
 # =====================
-# TODO: 今後選択肢を追加予定
+# TODO: 今後選択肢を追加予定（CATWの業務種別）
 attend_absence_types:
   - "開発"
   - "設計"
@@ -29,17 +29,46 @@ attend_absence_types:
   - "社内業務"
 
 # =====================
-# 勤怠設定
+# PSA 設定
 # =====================
-regular_hours: 8.0         # 所定労働時間
+# TODO: PSAのフォーマット確認後に種別を追加
+psa:
+  types: []              # 例: ["内勤", "教育", "祝日", "有給"]
+  excel:
+    path: null           # PSA提出用Excelのパス（後で設定）
 
 # =====================
-# Excel転記設定（後で設定）
+# Workday 設定
 # =====================
-# TODO: Excelファイルのフォーマット確認後に設定
-excel:
-  path: null               # 例: "/Users/yourname/Documents/勤怠表2026.xlsx"
-  sheet_name: null         # 例: "4月"
-  date_column: "A"
-  data_start_row: 2
-  overtime_column: "E"
+workday:
+  start_time: "09:00"    # 出勤時刻（固定）
+  core_hours: 7.5        # コアタイム（時間）
+  break_hours: 1.0       # 休憩時間（時間）
+  # 定時退勤 = start_time + core_hours + break_hours = 17:30
+  # 残業あり退勤 = start_time + core_hours + overtime + break_hours
+
+# =====================
+# CATW Excel 設定
+# =====================
+# TODO: CATWのExcelフォーマット確認後に設定
+catw:
+  excel:
+    path: null           # CATW提出用Excelのパス
+    sheet_name: null     # シート名（省略時はアクティブシート）
+    date_column: "A"
+    data_start_row: 2
+
+# =====================
+# Concur（交通費）設定
+# =====================
+# TODO: ConcurのExcelフォーマット確認後に設定
+concur:
+  excel:
+    path: null           # Concur提出用Excelのパス
+    sheet_name: null
+    date_column: "A"
+    transport_column: "B"
+    amount_column: "C"
+    comment_column: "D"
+    business_purpose_column: "E"
+    data_start_row: 2
