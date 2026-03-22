@@ -1,0 +1,45 @@
+# work-wrap 設定ファイル
+# このファイルをコピーして config.yaml を作成してください:
+#   cp config.example.yaml config.yaml
+
+# =====================
+# プロジェクト設定
+# =====================
+# 案件が終了したら該当エントリを削除してください
+projects:
+  - name: "ProjectA"
+    wbs: "A-001"           # WBSコード（案件の一意識別子）
+    excel_column: "B"      # Excel転記先列（後で設定）
+  - name: "ProjectB"
+    wbs: "B-002"
+    excel_column: "C"
+  - name: "ProjectC"
+    wbs: "C-003"
+    excel_column: "D"
+
+# =====================
+# Attend/Absence Type 選択肢
+# =====================
+# TODO: 今後選択肢を追加予定
+attend_absence_types:
+  - "開発"
+  - "設計"
+  - "レビュー"
+  - "打ち合わせ"
+  - "社内業務"
+
+# =====================
+# 勤怠設定
+# =====================
+regular_hours: 8.0         # 所定労働時間
+
+# =====================
+# Excel転記設定（後で設定）
+# =====================
+# TODO: Excelファイルのフォーマット確認後に設定
+excel:
+  path: null               # 例: "/Users/yourname/Documents/勤怠表2026.xlsx"
+  sheet_name: null         # 例: "4月"
+  date_column: "A"
+  data_start_row: 2
+  overtime_column: "E"

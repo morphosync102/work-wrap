@@ -1,0 +1,12 @@
+[project]
+name = "work-wrap"
+version = "0.1.0"
+requires-python = ">=3.11"
+dependencies = [
+    "PyYAML>=6.0",
+    "holidays>=0.46",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
