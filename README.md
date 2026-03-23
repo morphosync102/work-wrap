@@ -6,10 +6,10 @@
 
 | システム | 用途 | ステータス |
 |----------|------|----------|
-| **CATW** | プロジェクト案件の工数入力 | MD管理済み / Excel転記・Selenium: TODO |
+| **CATW** | プロジェクト案件の工数入力 | ✅ MD管理・Excel転記実装済み / Selenium: 統合待ち |
 | **PSA** | 案件外工数・祝日勤怠提出 | MD管理済み（フォーマット確認後に詳細化）/ 転記: TODO |
 | **Workday** | 日次の出退勤時刻提出 | MD管理済み / 転記: TODO |
-| **Concur** | 交通費申請 | MD管理済み / Excel転記・Selenium: TODO |
+| **Concur** | 交通費申請 | ✅ MD管理・Excel転記実装済み / Selenium: 統合待ち |
 
 ## ディレクトリ構成
 
@@ -21,9 +21,9 @@ work-wrap/
 ├── .gitignore
 ├── scripts/
 │   ├── generate_month.py         # ✅ 月次MDテンプレート生成（祝日自動判定）
-│   ├── transfer_catw.py          # 🔲 MD → CATW Excel 転記（TODO）
+│   ├── transfer_catw.py          # ✅ MD → CATW Excel 転記
 │   ├── transfer_psa.py           # 🔲 MD → PSA 転記（フォーマット確認後）
-│   ├── transfer_concur.py        # 🔲 MD → Concur Excel 転記（TODO）
+│   ├── transfer_concur.py        # ✅ MD → Concur Excel 転記
 │   ├── catw_selenium.py          # 🔲 CATW Excel → ブラウザ Selenium（既存統合待ち）
 │   └── concur_selenium.py        # 🔲 Concur Excel → ブラウザ Selenium（既存統合待ち）
 └── 勤怠/
@@ -141,11 +141,11 @@ concur:
 ## TODO
 
 - [ ] PSAのフォーマット確認 → `transfer_psa.py` 実装、PSAテーブル詳細化
-- [ ] CATWのExcelフォーマット確認 → `transfer_catw.py` 実装
-- [ ] ConcurのExcelフォーマット確認 → `transfer_concur.py` 実装
+- [x] CATWのExcelフォーマット確認 → `transfer_catw.py` 実装
+- [x] ConcurのExcelフォーマット確認 → `transfer_concur.py` 実装
+- [x] Attend/Absence Type の選択肢を確定して `config.yaml` に追加（全60種を網羅）
 - [ ] 既存の CATW Selenium スクリプトを `catw_selenium.py` に統合
 - [ ] 既存の Concur Selenium スクリプトを `concur_selenium.py` に統合
-- [ ] Attend/Absence Type の選択肢を確定して `config.yaml` に追加
 - [ ] WBSコードを実際の案件に合わせて更新
 - [ ] Workday の退勤・総時間を自動計算するヘルパースクリプト
 

@@ -5,6 +5,9 @@ config.yaml
 scripts/catw_selenium.py
 scripts/concur_selenium.py
 
+# 社内Excelマクロファイル（WBSコード等を含む）
+マクロ/
+
 # Python
 .venv/
 __pycache__/

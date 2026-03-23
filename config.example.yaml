@@ -3,39 +3,89 @@
 #   cp config.example.yaml config.yaml
 
 # =====================
-# プロジェクト設定（CATW）
+# プロジェクト設定（CATW / PSA 共通）
 # =====================
 # 案件が終了したら該当エントリを削除してください
 projects:
-  - name: "ProjectA"
-    wbs: "A-001"           # WBSコード（案件の一意識別子）
-    catw_column: "B"       # CATW Excel 転記先列（後で設定）
+  - name: "ProjectA"                   # MD ファイルでの表示名（列名）
+    wbs: "JP3-XXXXX.XX.XX.XX"          # WBS element（CATWのWBSコード）
+    description: "412 Implementation"  # Description 列（省略時は name を使用）
+    aa_type: "412 Implementation"      # Attend/Absence Type（下記一覧から選択）
+    memo: "プロジェクトA"               # Memo / 案件名等
   - name: "ProjectB"
-    wbs: "B-002"
-    catw_column: "C"
-  - name: "ProjectC"
-    wbs: "C-003"
-    catw_column: "D"
+    wbs: "JP3-YYYYY.XX.XX.XX"
+    description: "431 Project Mgmt"
+    aa_type: "431 Project Mgmt"
+    memo: "プロジェクトB"
+
+# PSA 専用エントリ（案件外工数・祝日等）
+psa_entries:
+  - name: "CompanyHoliday"
+    wbs: "FY26H1 - Self - HPE Corp/Bank Holidays"
+    aa_type: "110 Company Holiday"
+    memo: ""
+  - name: "Vacation"
+    wbs: "FY26H1 - Self - Personal"
+    aa_type: "120 Vacation,PersHol"
+    memo: ""
+  - name: "Internal"
+    wbs: "FY26H1 - Self - Internal"
+    aa_type: "700 General Attendance"
+    memo: "社内業務"
 
 # =====================
-# Attend/Absence Type 選択肢
+# Attend/Absence Type 全一覧（Master シートより）
 # =====================
-# TODO: 今後選択肢を追加予定（CATWの業務種別）
-attend_absence_types:
-  - "開発"
-  - "設計"
-  - "レビュー"
-  - "打ち合わせ"
-  - "社内業務"
-
-# =====================
-# PSA 設定
-# =====================
-# TODO: PSAのフォーマット確認後に種別を追加
-psa:
-  types: []              # 例: ["内勤", "教育", "祝日", "有給"]
-  excel:
-    path: null           # PSA提出用Excelのパス（後で設定）
+# 以下からコピーして aa_type に設定してください
+#
+# --- Absence ---
+# 100 General Absence
+# 110 Company Holiday
+# 120 Vacation,PersHol
+# 121 Sickness
+# 122 Unpaid Leave
+# 123 Other Paid Leave
+#
+# --- Project Work ---
+# 400 Project Attendance
+# 401 Consulting
+# 405 Rqmts Determination
+# 406 Rqmts Validation
+# 411 Design
+# 412 Implementation
+# 413 Documentation
+# 414 Testing
+# 415 Programming
+# 421 Quality Mgmt
+# 422 Knowledge Mgmt
+# 431 Project Mgmt
+# 432 Project Administration
+# 433 Project Meetings
+# 434 Project Reports
+# 441 Service Mgmt
+# 451 Proposal Prep&Es
+# 452 Bid Evaluation
+# 453 General Bus Dev
+# 457 Release Mgmt
+# 461 Incident Mgmt
+# 462 Operations Mgmt
+# 491 Train Prep & Dlv
+# 492 Project Training Received
+# 493 Project Travel
+# 499 Standby
+#
+# --- General ---
+# 700 General Attendance
+# 705 Meetings
+# 710 Travel
+# 720 Administration
+# 730 Training Received
+# 735 Training Delivered
+# 740 Mgmt
+# 750 People Mgmt
+# 760 Knowledge Mgmt
+# 770 Counseling/Mentoring
+# 775 Unassigned
 
 # =====================
 # Workday 設定
@@ -44,31 +94,36 @@ workday:
   start_time: "09:00"    # 出勤時刻（固定）
   core_hours: 7.5        # コアタイム（時間）
   break_hours: 1.0       # 休憩時間（時間）
-  # 定時退勤 = start_time + core_hours + break_hours = 17:30
-  # 残業あり退勤 = start_time + core_hours + overtime + break_hours
+  # 定時退勤 = 09:00 + 7.5h + 1.0h = 17:30
+  # 残業3h退勤 = 09:00 + 7.5h + 3.0h + 1.0h = 20:30
 
 # =====================
 # CATW Excel 設定
 # =====================
-# TODO: CATWのExcelフォーマット確認後に設定
 catw:
   excel:
-    path: null           # CATW提出用Excelのパス
-    sheet_name: null     # シート名（省略時はアクティブシート）
-    date_column: "A"
-    data_start_row: 2
+    path: "/path/to/マクロ/FY26_03月_CATW入力マクロ.xlsm"
+    sheet_name: "CATW"
+    # シート構造（変更不要）:
+    #   C4=Year, C5=Month
+    #   週ブロック開始行: Week1=7, Week2=19, Week3=31, Week4=43, Week5=55, Week6=67
+    #   各ブロック: C=WBS / D=Description / E=AA Type / F=Memo / G=Week合計 / H-N=月〜日
+
+# =====================
+# PSA Excel 設定（CATWと同じファイル内の別シート）
+# =====================
+psa:
+  excel:
+    path: "/path/to/マクロ/FY26_03月_CATW入力マクロ.xlsm"
+    sheet_name: "PSA"
 
 # =====================
 # Concur（交通費）設定
 # =====================
-# TODO: ConcurのExcelフォーマット確認後に設定
 concur:
   excel:
-    path: null           # Concur提出用Excelのパス
-    sheet_name: null
-    date_column: "A"
-    transport_column: "B"
-    amount_column: "C"
-    comment_column: "D"
-    business_purpose_column: "E"
+    path: "/path/to/マクロ/FY26_03月_CATW入力マクロ.xlsm"
+    sheet_name: "Concur"
+    # 列構造: A=日付 / B=交通手段 / C=金額 / D=コメント / E=Business Purpose / F=入力ステータス
+    header_row: 1
     data_start_row: 2
