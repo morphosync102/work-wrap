@@ -8,6 +8,13 @@ dependencies = [
     "openpyxl>=3.1",
     "selenium>=4.0",
     "webdriver-manager>=4.0",
+    "pywin32>=306; sys_platform == 'win32'",  # Excel VBAマクロ呼び出し（Windows のみ）
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0",
+    "pytest-mock>=3.12",
 ]
 
 [build-system]

@@ -94,13 +94,105 @@ python scripts/generate_month.py           # 引数なしで今月
 - 交通費が発生した日の行を手動で追加
 - 列: 日付 / 交通手段 / 金額(円) / コメント / Business Purpose
 
+### CATW Excel への転記（transfer_catw.py）
+
+MDファイルの `## CATW（案件工数）` テーブルを読み込み、CATWの提出用 Excel ファイルに転記します。
+
+```bash
+python scripts/transfer_catw.py 2026 3   # 2026年3月分
+python scripts/transfer_catw.py          # 引数なしで今月
+```
+
+**前提条件:**
+- `config.yaml` の `catw.excel.path` に Excel ファイルのパスが設定されていること
+- `config.yaml` の `projects` に対象案件の WBS・description・aa_type が定義されていること
+
+**動作:**
+1. `勤怠/YYYY/MM月.md` の CATW テーブルをパース
+2. 書き込み内容をプレビュー表示（案件名・日数・合計工数）
+3. `転記を実行しますか？ [y/N]` の確認後に Excel へ書き込み
+
+**Excel の書き込み先（シート構造）:**
+- `C4`=年, `C5`=月
+- 週ブロック（Week1〜6）の各行に WBS / Description / AA Type / Memo / 日別工数を書き込み
+- G列（週合計）の数式は上書きしない
+
+---
+
+### Concur Excel への転記（transfer_concur.py）
+
+MDファイルの `## Concur（交通費）` テーブルを読み込み、Concur 提出用 Excel ファイルに転記します。
+
+```bash
+python scripts/transfer_concur.py 2026 3   # 2026年3月分
+python scripts/transfer_concur.py          # 引数なしで今月
+```
+
+**前提条件:**
+- `config.yaml` の `concur.excel.path` に Excel ファイルのパスが設定されていること
+
+**動作:**
+1. `勤怠/YYYY/MM月.md` の Concur テーブルをパース
+2. 書き込み内容をプレビュー表示（日付・交通手段・金額・件数合計）
+3. `転記を実行しますか？ [y/N]` の確認後に Excel へ書き込み
+
+**MDテーブルの列と Excel 列の対応:**
+
+| MD列 | Excel列 | 内容 |
+|------|---------|------|
+| 日付 | A | 日付（`YYYY-MM-DD` / `YYYY/MM/DD` / `M/D` 形式を自動解析）|
+| 交通手段 | B | 交通手段 |
+| 金額 | C | 金額（円、カンマ・¥記号は自動除去）|
+| コメント | D | コメント |
+| Business Purpose | E | Business Purpose |
+
+---
+
+### PSA 転記（transfer_psa.py）
+
+**現在未実装。** PSA のフォーマット確認後に実装予定。
+
+```bash
+python scripts/transfer_psa.py   # [TODO] 現時点では即座に終了します
+```
+
+---
+
+### CATW 一括実行（run_catw.py）
+
+Excel 転記 → OpenCATW マクロ → Web 自動入力 を一本のスクリプトで順次実行できます。
+
+```bash
+python scripts/run_catw.py 2026 3   # 2026年3月分
+python scripts/run_catw.py          # 引数なしで今月
+```
+
+**実行ステップ:**
+1. `transfer_catw.py` を呼び出し（確認プロンプットあり）
+2. CATW Web 自動入力を続けるか確認
+3. win32com で Excel を開き `OpenCATW` マクロを実行（Edge がデバッグモードで起動）
+4. Edge の CDP ポート（デフォルト 9222）が応答するまで待機
+5. `catw_selenium.py` を呼び出し
+
+> **注意**: Step 3〜5 は `pywin32` が必要なため **Windows 環境のみ** 動作します。
+
+**必要な config.yaml 設定:**
+```yaml
+catw:
+  excel:
+    path: "/path/to/CATW.xlsm"
+    macro_name: "OpenCATW"   # VBA マクロ名（デフォルト: OpenCATW）
+    cdp_port: 9222           # Edge デバッグポート（デフォルト: 9222）
+```
+
+---
+
 ### 運用フロー（完成後）
 
 ```
 1. 月初: python scripts/generate_month.py   → 月次MDを生成
 2. 毎日: MDファイルに当日分を記入
-3. 月末: python scripts/transfer_catw.py    → CATW Excel に転記
-          python scripts/catw_selenium.py    → CATW Web に自動入力
+3. 月末: python scripts/run_catw.py         → CATW Excel転記 + Web自動入力（一括）
           python scripts/transfer_concur.py  → Concur Excel に転記
           python scripts/concur_selenium.py  → Concur Web に自動入力
           python scripts/transfer_psa.py     → PSA に転記（フォーマット確認後）
@@ -138,16 +230,57 @@ concur:
 | `selenium` | ブラウザ自動操作 |
 | `webdriver-manager` | ChromeDriverの自動管理 |
 
-## TODO
+## 実装状況
 
-- [ ] PSAのフォーマット確認 → `transfer_psa.py` 実装、PSAテーブル詳細化
-- [x] CATWのExcelフォーマット確認 → `transfer_catw.py` 実装
-- [x] ConcurのExcelフォーマット確認 → `transfer_concur.py` 実装
-- [x] Attend/Absence Type の選択肢を確定して `config.yaml` に追加（全60種を網羅）
-- [ ] 既存の CATW Selenium スクリプトを `catw_selenium.py` に統合
-- [ ] 既存の Concur Selenium スクリプトを `concur_selenium.py` に統合
-- [ ] WBSコードを実際の案件に合わせて更新
-- [ ] Workday の退勤・総時間を自動計算するヘルパースクリプト
+### スクリプト一覧
+
+| スクリプト | 状態 | 実行環境 | 内容 |
+|---|---|---|---|
+| `generate_month.py` | ✅ 実装済み | Mac/Win | 月次 MD テンプレート生成 |
+| `transfer_catw.py` | ✅ 実装済み | Mac/Win | MD → CATW Excel 転記 |
+| `transfer_concur.py` | ✅ 実装済み | Mac/Win | MD → Concur Excel 転記 |
+| `run_catw.py` | ✅ 実装済み・**未通しテスト** | **Windows のみ** | CATW 一括実行オーケストレーター |
+| `catw_selenium.py` | ✅ 実装済み・**未通しテスト** | **Windows のみ** | Playwright で CATW Web 自動入力 |
+| `concur_selenium.py` | ✅ 実装済み・**未通しテスト** | **Windows のみ** | Selenium で Concur Web 自動入力 |
+| `transfer_psa.py` | 🔲 未実装 | - | PSA フォーマット確認後に実装 |
+
+> `catw_selenium.py` / `concur_selenium.py` は `.gitignore` 対象（社内システム用）。
+
+---
+
+## Windows 環境での動作確認チェックリスト
+
+`run_catw.py` を通しで動かす前に以下を確認すること。
+
+### 1. config.yaml の設定確認
+
+```yaml
+catw:
+  excel:
+    path: "/path/to/FY26_03月_CATW入力マクロ.xlsm"  # 実際のパスに変更
+    macro_name: "OpenCATW"   # Excel VBA マクロ名（実際のマクロ名と一致しているか）
+    cdp_port: 9222           # Edge デバッグポート（変更している場合は修正）
+```
+
+### 2. Step 別確認ポイント
+
+| Step | コマンド / 操作 | 確認すること |
+|---|---|---|
+| Step 1 | `python scripts/transfer_catw.py 2026 3` | 確認プロンプトが出る / Excel に正しく書き込まれる / N で終了する |
+| Step 2 | `python scripts/transfer_concur.py 2026 3` | Concur シートへの書き込みが正しい |
+| Step 3 | `python scripts/run_catw.py 2026 3` | Step1 の確認後 → Step2 の Web 入力確認が出る |
+| Step 4 | 上記 y 入力後 | win32com で Excel が開く / OpenCATW マクロが動く / Edge がデバッグモードで起動する |
+| Step 5 | 上記継続 | CDP ポート 9222 に接続できる / catw_selenium.py が年月を正しく読む |
+
+### 3. 残タスク
+
+| 優先度 | タスク |
+|---|---|
+| 高 | Windows で `run_catw.py` を通しテスト（特に Step3 の `excel.Run()` マクロ名フォーマット） |
+| 高 | `config.yaml` の WBS コードを実際の案件に合わせる |
+| 中 | `run_concur.py` を作成（run_catw.py と同パターンで Concur を一括実行） |
+| 低 | PSA フォーマット確認 → `transfer_psa.py` 実装 |
+| 低 | Workday 退勤時刻の自動計算スクリプト |
 
 ## AI向け補足
 
@@ -160,5 +293,5 @@ concur:
   - 土日・祝日行: 日付が `**太字**`、工数セルが ` - `
   - 祝日の日付フォーマット: `M/D (祝)祝日名`
   - 平日の日付フォーマット: `M/D (曜日)`
-- **転記スクリプトはすべてTODO**。実装時は各システムのExcelフォーマットを確認してから着手すること
+- **transfer_catw.py・transfer_concur.py は実装済み**。transfer_psa.py のみ未実装（PSA フォーマット確認後に実装）
 - **Seleniumスクリプトは既存コードの統合待ち**。プレースホルダーのみ存在する

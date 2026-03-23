@@ -104,6 +104,8 @@ catw:
   excel:
     path: "/path/to/マクロ/FY26_03月_CATW入力マクロ.xlsm"
     sheet_name: "CATW"
+    macro_name: "OpenCATW"   # Excel内VBAマクロ名（Edgeをデバッグモードで起動するマクロ）
+    cdp_port: 9222           # EdgeデバッグポートのポートTCP番号
     # シート構造（変更不要）:
     #   C4=Year, C5=Month
     #   週ブロック開始行: Week1=7, Week2=19, Week3=31, Week4=43, Week5=55, Week6=67

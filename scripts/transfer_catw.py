@@ -267,7 +267,7 @@ def main() -> None:
     ans = input("\n転記を実行しますか？ [y/N]: ").strip().lower()
     if ans != "y":
         print("キャンセルしました。")
-        sys.exit(0)
+        sys.exit(2)  # 2 = ユーザーキャンセル（0=成功、1=エラーと区別）
 
     write_catw_excel(excel_path, sheet_name, week_data, year, month)
 
