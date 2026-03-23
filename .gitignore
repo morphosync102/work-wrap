@@ -1,6 +1,10 @@
 # 個人設定（テンプレートから作成するもの）
 config.yaml
 
+# 社内システム自動化スクリプト（非公開）
+scripts/catw_selenium.py
+scripts/concur_selenium.py
+
 # Python
 .venv/
 __pycache__/
